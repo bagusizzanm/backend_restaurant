@@ -11,8 +11,8 @@ class TableRestaurant extends Model
 
   protected $fillable = ['number', 'status'];
 
-  public function orders()
+  public function order()
   {
-    return $this->hasMany(Orders::class);
+    return $this->hasMany(Order::class);
   }
 }

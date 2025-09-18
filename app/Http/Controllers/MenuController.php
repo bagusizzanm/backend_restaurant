@@ -18,7 +18,7 @@ class MenuController extends Controller
     $request->validate([
       'name' => 'required|string',
       'price' => 'required|numeric',
-      'type' => 'required|in:food,drink',
+      'type' => 'required|in:beverage,appetizer,main course,dessert,salad',
     ]);
 
     $menu = Menu::create($request->all());

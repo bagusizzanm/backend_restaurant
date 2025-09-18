@@ -15,7 +15,7 @@ return new class extends Migration
       $table->id();
       $table->string('name');
       $table->decimal('price', 10, 2);
-      $table->enum('type', ['food', 'drink']);
+      $table->enum('type', ['appetizer', 'main course', 'dessert', 'beverage', 'salad']);
       $table->text('description')->nullable();
       $table->timestamps();
     });
