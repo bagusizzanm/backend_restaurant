@@ -10,7 +10,6 @@ class MenuController extends Controller
   public function index()
   {
     $menu = Menu::all();
-    dd($menu);
     return response()->json($menu);
   }
 
@@ -23,25 +22,29 @@ class MenuController extends Controller
     ]);
 
     $menu = Menu::create($request->all());
-    return response()->json($menu, 201);
+    return response()->json([
+      'data' => $menu,
+      'message' => 'Menu baru tersimpan'
+    ]);
   }
 
   public function show($id)
   {
-    return response()->json(Menu::findOrFail($id));
+    $menu = Menu::findOrFail($id);
+    return response()->json($menu);
   }
 
   public function update(Request $request, $id)
   {
     $menu = Menu::findOrFail($id);
     $menu->update($request->all());
-    return response()->json($menu);
+    return response()->json(['data' => $menu, 'message' => 'Menu terupdate']);
   }
 
   public function destroy($id)
   {
     $menu = Menu::findOrFail($id);
     $menu->delete();
-    return response()->json(['message' => 'Menu deleted']);
+    return response()->json(['message' => 'Menu dihapus']);
   }
 }
