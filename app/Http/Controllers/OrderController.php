@@ -13,21 +13,17 @@ class OrderController extends Controller
   //@desc GET /api/orders
   public function index(Request $request)
   {
-    $query = Order::with(['table', 'user', 'items.menu']);
+    $query = Order::with('items.menu', 'table');
 
-    if ($request->has('status') && in_array($request->status, ['open', 'closed'])) {
+    if ($request->has('table_id')) {
+      $query->where('table_restaurant_id', $request->table_id);
+    }
+
+    if ($request->has('status')) {
       $query->where('status', $request->status);
     }
 
-    if ($request->has('table')) {
-      $query->whereHas('table', function ($q) use ($request) {
-        $q->where('number', $request->table);
-      });
-    }
-
-    $orders = $query->orderBy('created_at', 'desc')->get();
-
-    return response()->json($orders);
+    return response()->json($query->get());
   }
 
   // POST /api/orders
@@ -41,13 +37,13 @@ class OrderController extends Controller
 
     // Cek apakah meja kosong
     if ($table->status === 'occupied') {
-      return response()->json(['message' => 'Meja ini tidak kosong'], 400);
+      return response()->json(['message' => 'Meja ini sudah dipesan'], 400);
     }
 
     // Buat order baru
     $order = Order::create([
       'table_restaurant_id' => $table->id,
-      // 'user_id' => $request->user()->id,
+      'user_id' => auth()->id(),
       'status' => 'open',
       'total_price' => 0,
     ]);

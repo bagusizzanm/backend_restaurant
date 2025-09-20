@@ -8,6 +8,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\TableController;
 
 Route::post('/login', [AuthController::class, 'login']);
+// List Meja
+Route::get('/tables', [TableController::class, 'index']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -15,8 +17,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
   // Menu
   Route::apiResource('menus', MenuController::class);
-  // List Meja
-  Route::get('/tables', [TableController::class, 'index']);
   // Open Order
   Route::get('/orders', [OrderController::class, 'index']);
   Route::post('/orders', [OrderController::class, 'store']);
