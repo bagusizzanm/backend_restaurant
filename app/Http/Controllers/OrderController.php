@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Menu;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\TableRestaurant;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -75,18 +76,27 @@ class OrderController extends Controller
     if ($order->status !== 'open') {
       return response()->json(['message' => 'Pesanan sudah ditutup, tidak bisa menambah item'], 400);
     }
+    $orderItem = OrderItem::where('order_id', $order->id)
+      ->where('menu_id', $request->menu_id)
+      ->first();
 
-    $menu = Menu::findOrFail($request->menu_id);
-    $subtotal = $menu->price * $request->qty;
+    if ($orderItem) {
+      $menu = Menu::findOrFail($request->menu_id);
+      $orderItem->qty += $request->qty;
+      $orderItem->subtotal = $orderItem->qty * $menu->price;
+      $orderItem->save();
+    } else {
+      $menu = Menu::findOrFail($request->menu_id);
+      $orderItem = OrderItem::create([
+        'order_id' => $order->id,
+        'menu_id' => $menu->id,
+        'qty' => $request->qty,
+        'subtotal' => $menu->price * $request->qty,
+      ]);
+    }
 
-    $item = $order->items()->create([
-      'menu_id' => $menu->id,
-      'qty' => $request->qty,
-      'subtotal' => $subtotal
-    ]);
-
-    // update total harga
-    $order->total_price += $subtotal;
+    // update total harga order
+    $order->total_price = $order->items()->sum('subtotal');
     $order->save();
 
     return response()->json([

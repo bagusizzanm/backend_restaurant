@@ -1,61 +1,232 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🍽️ Restaurant Ordering System API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Backend RESTful API berbasis **Laravel** untuk sistem pemesanan restoran.  
+Fitur utama:
 
-## About Laravel
+- Multiple Role Authentication (Kasir, Pelayan)
+- Manajemen Menu (CRUD makanan & minuman)
+- Manajemen Meja
+- Pemesanan (Open / Add Item / Close Order)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Tech Stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- [Laravel 12](https://laravel.com/) (Backend Framework)
+- [MySQL](https://www.mysql.com/) (Database)
+- [Sanctum](https://laravel.com/docs/sanctum) (Authentication Token)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 📂 Struktur Project (utama)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```
+app/
+ ├── Http/
+ │    ├── Controllers/
+ │    │     ├── AuthController.php
+ │    │     ├── MenuController.php
+ │    │     ├── OrderController.php
+ │    │     ├── TableController.php
+ │    └── Middleware/
+ │
+ ├── Models/
+ │    ├── User.php
+ │    ├── Menu.php
+ │    ├── TableRestaurant.php
+ │    ├── Order.php
+ │    └── OrderItem.php
+ │
+database/
+ ├── migrations/
+ │    ├── create_users_table.php
+ │    ├── create_menus_table.php
+ │    ├── create_table_restaurants_table.php
+ │    ├── create_orders_table.php
+ │    └── create_order_items_table.php
+ └── seeders/
+      ├── UserSeeder.php
+      └── TableSeeder.php
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## ⚙️ Instalasi & Setup
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clone repo & install dependency**
 
-### Premium Partners
+   ```bash
+   git clone https://github.com/bagusizzanm/backend_restaurant.git
+   cd restaurant-backend
+   composer install
+   ```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+2. **Buat file environment**
 
-## Contributing
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3. **Atur koneksi database** di `.env`
 
-## Code of Conduct
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=restaurant_db
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Migrasi & seeder**
 
-## Security Vulnerabilities
+   ```bash
+   php artisan migrate --seed
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   Seeder akan otomatis membuat:
 
-## License
+   - 10 meja (`table_restaurants`). Atau di dalam seeder dapat diubah sesuai keinginan.
+   - User role Kasir & Pelayan.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. **Publish CORS**
+
+   ```bash
+   php artisan publish:cors
+   ```
+
+6. **Jalankan server**
+
+   ```bash
+   php artisan serve
+   ```
+
+   API berjalan di `http://127.0.0.1:8000/api`
+
+---
+
+## 🔑 Authentication
+
+Menggunakan **Laravel Sanctum**.  
+Login menghasilkan token untuk setiap user role.
+
+### Endpoint Login
+
+`POST /api/login`
+
+**Request Body**
+
+```json
+{
+  "email": "kasir@example.com",
+  "password": "password"
+}
+{
+  "email": "server@example.com",
+  "password": "password"
+}
+```
+
+**Response**
+
+```json
+{
+  "user": {
+    "id": 1,
+    "name": "Kasir",
+    "role": "kasir"
+  },
+  "token": "xxxxxxxxxxxxxxxxxxxx"
+}
+```
+
+Gunakan `Authorization: Bearer <token>` di setiap request setelah login.
+
+---
+
+## 📖 API Endpoints
+
+### 🔹 Auth
+
+| Method | Endpoint  | Deskripsi   |
+| ------ | --------- | ----------- |
+| POST   | `/login`  | Login user  |
+| POST   | `/logout` | Logout user |
+
+---
+
+### 🔹 Menu (CRUD)
+
+| Method | Endpoint      | Deskripsi       |
+| ------ | ------------- | --------------- |
+| GET    | `/menus`      | List semua menu |
+| POST   | `/menus`      | Tambah menu     |
+| PUT    | `/menus/{id}` | Update menu     |
+| DELETE | `/menus/{id}` | Hapus menu      |
+
+**Contoh Tambah Menu**
+
+```json
+{
+  "name": "Nasi Goreng",
+  "price": 20000,
+  "type": "main course",
+  "description": "Nasi goreng spesial"
+}
+```
+
+---
+
+### 🔹 Table
+
+| Method | Endpoint  | Deskripsi                |
+| ------ | --------- | ------------------------ |
+| GET    | `/tables` | List semua meja (status) |
+
+Status meja: `available`, `occupied`, `inactive`, `reserved`
+
+---
+
+### 🔹 Orders
+
+| Method | Endpoint             | Deskripsi                                      |
+| ------ | -------------------- | ---------------------------------------------- |
+| GET    | `/orders`            | List semua order (filter `status`, `table_id`) |
+| GET    | `/orders/{id}`       | Detail order                                   |
+| POST   | `/orders`            | Buat order baru (open order)                   |
+| POST   | `/orders/{id}/items` | Tambah item ke order                           |
+| POST   | `/orders/{id}/close` | Tutup order                                    |
+
+**Contoh Buat Order**
+
+```json
+{
+  "table_restaurant_id": 2
+}
+```
+
+**Contoh Tambah Item**
+
+```json
+{
+  "menu_id": 1,
+  "qty": 2
+}
+```
+
+---
+
+## 📌 Fitur yang Tersedia
+
+- [x] Login multi-role (Kasir, Pelayan)
+- [x] CRUD Menu
+- [x] List Table (via Seeder)
+- [x] Open Order ke meja available
+- [x] Tambah item ke order
+- [x] Detail Order
+- [x] Tutup Order (meja jadi available lagi)
+- [x] List Order (filter by table/status)
+- [x] Generate Receipt PDF
+
+---
